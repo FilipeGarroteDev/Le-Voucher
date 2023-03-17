@@ -60,7 +60,7 @@ describe("createVoucher unit tests", () => {
 describe("applyVoucher unit tests", () => {
 	it("should respond with error if there is no voucher with given code", () => {
 		expect(async () => {
-			const code = "existentCode";
+			const code = "validCode";
 			jest
 				.spyOn(voucherRepository, "getVoucherByCode")
 				.mockResolvedValueOnce(undefined);
@@ -72,7 +72,26 @@ describe("applyVoucher unit tests", () => {
 		});
 	});
 
-	it("should respond with error if discount is more than 100", async () => {
-		const discount = 101;
+	it("should doesnt apply discount, when voucher has already been used", async () => {
+		const amount = 200;
+		const usedVoucher = {
+			id: 1,
+			code: "validCode",
+			discount: 50,
+			used: true,
+		};
+
+		jest
+			.spyOn(voucherRepository, "getVoucherByCode")
+			.mockResolvedValueOnce(usedVoucher);
+
+		const result = await voucherService.applyVoucher(usedVoucher.code, amount);
+
+		expect(result).toEqual({
+			amount,
+			discount: usedVoucher.discount,
+			finalAmount: amount,
+			applied: false,
+		});
 	});
 });
