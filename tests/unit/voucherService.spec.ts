@@ -56,3 +56,23 @@ describe("createVoucher unit tests", () => {
 		expect(newVoucher).toBeCalled();
 	});
 });
+
+describe("applyVoucher unit tests", () => {
+	it("should respond with error if there is no voucher with given code", () => {
+		expect(async () => {
+			const code = "existentCode";
+			jest
+				.spyOn(voucherRepository, "getVoucherByCode")
+				.mockResolvedValueOnce(undefined);
+
+			await voucherService.applyVoucher(code, 50);
+		}).rejects.toEqual({
+			type: "conflict",
+			message: "Voucher does not exist.",
+		});
+	});
+
+	it("should respond with error if discount is more than 100", async () => {
+		const discount = 101;
+	});
+});
