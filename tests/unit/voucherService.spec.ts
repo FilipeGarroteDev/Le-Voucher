@@ -144,4 +144,31 @@ describe("applyVoucher unit tests", () => {
 			applied: true,
 		});
 	});
+
+  it("should apply discount, when voucher isnt used and amount is more than 100", async () => {
+		const amount = 150;
+		const validVoucher = {
+			id: 1,
+			code: "validCode",
+			discount: 50,
+			used: false,
+		};
+
+		jest
+			.spyOn(voucherRepository, "getVoucherByCode")
+			.mockResolvedValueOnce(validVoucher);
+
+		jest
+			.spyOn(voucherRepository, "useVoucher")
+			.mockResolvedValueOnce({ ...validVoucher, used: true });
+
+		const result = await voucherService.applyVoucher(validVoucher.code, amount);
+
+		expect(result).toEqual({
+			amount,
+			discount: validVoucher.discount,
+			finalAmount: amount - amount * (validVoucher.discount / 100),
+			applied: true,
+		});
+	});
 });
