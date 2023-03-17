@@ -28,6 +28,7 @@ async function applyVoucher(code: string, amount: number) {
 	let finalAmount = amount;
 	if (isAmountValidForDiscount(amount) && !voucher.used) {
 		await changeVoucherToUsed(code);
+    console.log(voucher);
 		finalAmount = applyDiscount(amount, voucher.discount);
 	}
 

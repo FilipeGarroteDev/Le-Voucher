@@ -95,7 +95,7 @@ describe("applyVoucher unit tests", () => {
 		});
 	});
 
-  it("should doesnt apply discount, when amount is below 100", async () => {
+	it("should doesnt apply discount, when amount is below 100", async () => {
 		const amount = 99;
 		const validVoucher = {
 			id: 1,
@@ -115,6 +115,33 @@ describe("applyVoucher unit tests", () => {
 			discount: validVoucher.discount,
 			finalAmount: amount,
 			applied: false,
+		});
+	});
+
+	it("should apply discount, when voucher isnt used and amount is equal to 100", async () => {
+		const amount = 100;
+		const validVoucher = {
+			id: 1,
+			code: "validCode",
+			discount: 50,
+			used: false,
+		};
+
+		jest
+			.spyOn(voucherRepository, "getVoucherByCode")
+			.mockResolvedValueOnce(validVoucher);
+
+		jest
+			.spyOn(voucherRepository, "useVoucher")
+			.mockResolvedValueOnce({ ...validVoucher, used: true });
+
+		const result = await voucherService.applyVoucher(validVoucher.code, amount);
+
+		expect(result).toEqual({
+			amount,
+			discount: validVoucher.discount,
+			finalAmount: amount - amount * (validVoucher.discount / 100),
+			applied: true,
 		});
 	});
 });
