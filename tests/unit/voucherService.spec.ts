@@ -26,7 +26,7 @@ describe("createVoucher unit tests", () => {
 						used: false,
 					};
 				});
-        
+
 			await voucherService.createVoucher(code, 50);
 		}).rejects.toEqual({
 			type: "conflict",
@@ -34,9 +34,25 @@ describe("createVoucher unit tests", () => {
 		});
 	});
 
-	// it();
+	it("should create a new voucher", async () => {
+		const voucher = {
+			code: "123456",
+			discount: 50,
+			used: false,
+		};
 
-	// it();
+		jest
+			.spyOn(voucherRepository, "getVoucherByCode")
+			.mockResolvedValueOnce(undefined);
 
-	// it();
+		const newVoucher = jest
+			.spyOn(voucherRepository, "createVoucher")
+			.mockResolvedValueOnce({
+				...voucher,
+				id: 1,
+			});
+
+		await voucherService.createVoucher("123456", 50);
+		expect(newVoucher).toBeCalled();
+	});
 });
